@@ -1,5 +1,6 @@
 # React Infinite Scroll
-Up and down infinite scroll (todo: add left and right)
+Up and down infinite scroll (todo: add left and right)  
+`npm i n-react-infinite-scroll`
 
 ## Props
 

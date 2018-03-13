@@ -1,4 +1,4 @@
-import { Component } from "react";
+import React, { Component } from "react";
 import { noop } from "./noop";
 import ReactDOM from "react-dom";
 import PropTypes from "prop-types";
@@ -26,9 +26,9 @@ export default class Infinite extends Component {
             right:   false,
         };
 
-        this.parentElement;
-        this.element;
-        this.scrollEventHandler;
+        // this.parentElement;
+        // this.element;
+        // this.scrollEventHandler;
     }
 
     getScrollY() {

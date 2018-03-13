@@ -8,6 +8,8 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 var _react = require("react");
 
+var _react2 = _interopRequireDefault(_react);
+
 var _noop = require("./noop");
 
 var _reactDom = require("react-dom");
@@ -71,9 +73,9 @@ var Infinite = function (_Component) {
             right: false
         };
 
-        _this.parentElement;
-        _this.element;
-        _this.scrollEventHandler;
+        // this.parentElement;
+        // this.element;
+        // this.scrollEventHandler;
         return _this;
     }
 
@@ -110,9 +112,14 @@ var Infinite = function (_Component) {
     }, {
         key: "render",
         value: function render() {
-            return React.createElement(
+            return _react2.default.createElement(
                 "div",
                 null,
+                _react2.default.createElement(
+                    "h1",
+                    null,
+                    "BAMAMA"
+                ),
                 this.props.children
             );
         }

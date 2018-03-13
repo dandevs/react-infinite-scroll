@@ -1,6 +1,6 @@
 {
   "name": "n-react-infinite-scroll",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "React infinite scroll",
   "main": "index.js",
   "author": "Danilo",
@@ -18,9 +18,14 @@
   },
   "homepage": "https://github.com/dandevs/react-infinite-scroll",
   "keywords": [
-    "up", "down",
-    "react", "infinite", "scroll",
-    "multi", "directional", "bidirectional"
+    "up",
+    "down",
+    "react",
+    "infinite",
+    "scroll",
+    "multi",
+    "directional",
+    "bidirectional"
   ],
   "devDependencies": {
     "babel": "^6.23.0",

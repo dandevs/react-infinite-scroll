@@ -1,12 +1,12 @@
 {
   "name": "n-react-infinite-scroll",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "React infinite scroll",
   "main": "index.js",
   "author": "Danilo",
   "license": "MIT",
   "scripts": {
-    "build": "babel src/infinite.js --out-file dist/infinite.js",
+    "build": "babel src --out-dir dist",
     "prepublish": "npm run build"
   },
   "repository": {

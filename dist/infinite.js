@@ -20,6 +20,10 @@ var _propTypes = require("prop-types");
 
 var _propTypes2 = _interopRequireDefault(_propTypes);
 
+var _lodash = require("lodash.throttle");
+
+var _lodash2 = _interopRequireDefault(_lodash);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -36,7 +40,15 @@ var Infinite = function (_Component) {
 
         var _this = _possibleConstructorReturn(this, (Infinite.__proto__ || Object.getPrototypeOf(Infinite)).call(this, props));
 
-        _this.scrollEventHandler = function (event) {
+        _this.preserveScrollHeight = function (startingHeight) {
+            return function () {
+                if (_this.element.scrollHeight === startingHeight) return;
+
+                _this.parentElement.scrollBy(0, _this.element.scrollHeight - startingHeight);
+            };
+        };
+
+        _this.scrollEventHandler = (0, _lodash2.default)(function (event) {
             var scroll_y = _this.getScrollY(),
                 parent_height = _this.getParentVisibleHeight(),
                 content_height = _this.element.scrollHeight;
@@ -47,10 +59,11 @@ var Infinite = function (_Component) {
 
             // Load Down
             if (scroll_y + parent_height >= content_height - threshold && directions.includes("down") && !_this.loading.down) {
+
                 _this.loading.down = true;
 
-                Promise.resolve(handler({ direction: "down" })).then(function () {
-                    _this.loading.down = false;
+                Promise.resolve(handler({ direction: "down", preserveScrollHeight: _noop.noop })).then(function () {
+                    return _this.loading.down = false;
                 });
             }
 
@@ -58,13 +71,11 @@ var Infinite = function (_Component) {
             if (scroll_y <= threshold && directions.includes("up") && !_this.loading.up) {
                 _this.loading.up = true;
 
-                Promise.resolve(handler({ direction: "up" })).then(function (valid) {
-                    _this.loading.up = false;
-
-                    if (valid) _this.parentElement.scrollBy(0, _this.element.scrollHeight - content_height);
+                Promise.resolve(handler({ direction: "up", preserveScrollHeight: _this.preserveScrollHeight(content_height) })).then(function () {
+                    return _this.loading.up = false;
                 });
             }
-        };
+        }, 100);
 
         _this.loading = {
             up: false,
@@ -98,28 +109,21 @@ var Infinite = function (_Component) {
             if (this.props.useWindow) this.parentElement = window;
 
             this.scrollEventListener = this.parentElement.addEventListener("scroll", this.scrollEventHandler);
-        }
-    }, {
-        key: "componentDidUpdate",
-        value: function componentDidUpdate() {
-            this.scrollEventHandler();
+
+            this.scrollEventListener = this.parentElement.addEventListener("touchmove", this.scrollEventHandler);
         }
     }, {
         key: "componentWillUnmount",
         value: function componentWillUnmount() {
-            this.parentElement.removeEventListener("scroll", this.scrollEventListener);
+            this.parentElement.removeEventListener("scroll", this.scrollEventHandler);
+            this.parentElement.removeEventListener("touchmove", this.scrollEventHandler);
         }
     }, {
         key: "render",
         value: function render() {
             return _react2.default.createElement(
                 "div",
-                null,
-                _react2.default.createElement(
-                    "h1",
-                    null,
-                    "BAMAMA"
-                ),
+                { className: "infinite-scroll-area" },
                 this.props.children
             );
         }

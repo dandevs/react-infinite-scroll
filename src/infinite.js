@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { noop } from "./noop";
 import ReactDOM from "react-dom";
 import PropTypes from "prop-types";
+import throttle from "lodash.throttle";
 
 export default class Infinite extends Component {
     static propTypes = {
@@ -43,7 +44,16 @@ export default class Infinite extends Component {
             this.parentElement.offsetHeight;
     }
 
-    scrollEventHandler = (event) => {
+    preserveScrollHeight = (startingHeight) => {
+        return () => {
+            if (this.element.scrollHeight === startingHeight)
+                return;
+
+            this.parentElement.scrollBy(0, this.element.scrollHeight - startingHeight)
+        };
+    }
+
+    scrollEventHandler = throttle((event) => {
         const scroll_y         = this.getScrollY(),
               parent_height    = this.getParentVisibleHeight(),
               content_height   = this.element.scrollHeight;
@@ -54,28 +64,23 @@ export default class Infinite extends Component {
 
         // Load Down
         if (scroll_y + parent_height >= content_height - threshold &&
-        directions.includes("down") && !this.loading.down) {
+            directions.includes("down") &&
+            !this.loading.down) {
+
             this.loading.down = true;
 
-            Promise.resolve(handler({ direction: "down" }))
-                .then(() => {
-                    this.loading.down = false
-                });
+            Promise.resolve(handler({ direction: "down", preserveScrollHeight: noop }))
+                .then(() => this.loading.down = false);
         }
 
         // Load Up
         if (scroll_y <= threshold && directions.includes("up") && !this.loading.up) {
             this.loading.up = true;
 
-            Promise.resolve(handler({ direction: "up" }))
-                .then((valid) => {
-                    this.loading.up = false;
-
-                    if (valid)
-                        this.parentElement.scrollBy(0, this.element.scrollHeight - content_height);
-                });
+            Promise.resolve(handler({ direction: "up", preserveScrollHeight: this.preserveScrollHeight(content_height) }))
+                .then(() => this.loading.up = false);
         }
-    }
+    }, 100)
 
     componentDidMount() {
         this.element         = ReactDOM.findDOMNode(this);
@@ -86,18 +91,18 @@ export default class Infinite extends Component {
 
         this.scrollEventListener = this.parentElement
             .addEventListener("scroll", this.scrollEventHandler);
-    }
 
-    componentDidUpdate() {
-        this.scrollEventHandler();
+        this.scrollEventListener = this.parentElement
+            .addEventListener("touchmove", this.scrollEventHandler);
     }
 
     componentWillUnmount() {
-        this.parentElement.removeEventListener("scroll", this.scrollEventListener);
+        this.parentElement.removeEventListener("scroll", this.scrollEventHandler);
+        this.parentElement.removeEventListener("touchmove", this.scrollEventHandler);
     }
 
     render() {
-        return (<div>
+        return (<div className="infinite-scroll-area">
             {this.props.children}
         </div>)
     }
